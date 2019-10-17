@@ -30,6 +30,7 @@ class Etapa1 extends React.Component{
    constructor(){
      super()
        this.state = {
+
         id: '', 
         created: false, 
         numSinsitro: '',
@@ -54,7 +55,7 @@ class Etapa1 extends React.Component{
        this.handleInfoAdic = this.handleInfoAdic.bind(this)
        this.handleInfoFin = this.handleInfoFin.bind(this)
        this.onChangeHandler = this.onChangeHandler.bind(this)
-       this.getUrls = this.getUrls.bind(this)
+      // this.getUrls = this.getUrls.bind(this)
    }
 
 componentDidMount = () => {
@@ -72,7 +73,7 @@ componentDidMount = () => {
         this.fullFields(note[0])
     })
     
-   const storageRef = firebase.storage().ref('2');
+   const storageRef = firebase.storage().ref(this.props.selectedNote.id);
     // Create a reference under which you want to list
 const listRef = storageRef.child('pdf/');
 
@@ -162,7 +163,7 @@ openDialog() {
 
     }
 
-getUrls= path =>{
+/*getUrls= path =>{
 // Create a reference to the file we want to download
 var starsRef = storageRef.child(path);
 const urldir=''
@@ -195,7 +196,7 @@ starsRef.getDownloadURL().then(function(url) {
   }
 });
 return urldir
-}
+}*/
 
 
 render(){
@@ -233,13 +234,13 @@ render(){
             <input
                accept="pdf/*"
                style={{display: 'none'}}
-               id="contained-button-file"
+               id="fechaReclamo"
+               key="fechaReclamo"
                multiple
                type="file"
                onChange={this.onChangeHandler}/>
-
                
-             <label htmlFor="contained-button-file">
+             <label htmlFor="fechaReclamo">
             <Button variant="contained" component="span" style={{margin: '20px'}}>
               Cargar archivo
              </Button>
@@ -259,7 +260,7 @@ render(){
               variant="contained" 
               style={{margin: '20px'}}
               color="primary">Ver Archivos</Button>
-              <Dialog open={this.state.open} >
+             <Dialog open={this.state.open} >
                    {this.state.docs1.map(item =>{
                     // console.log('dialog',item.name)
                     return( <DialogContent key={item.name}><a href={console.log('loko')} target = "blank">{item.name}</a></DialogContent>)
@@ -426,13 +427,27 @@ await firebase.firestore().collection('notes').doc(this.props.selectedNote.id).c
 
 
   
-     const arch = this.state.archivo;
-      let metadata = {
-  contentType: 'document/pdf'
-};
+    
+}
 
-  const storageRef = firebase.storage().ref('2');
-  let uploadTask = storageRef.child('pdf/' + arch.name).put(arch, metadata);
+
+onChangeHandler= async (event)=>{
+    const gui=event.target
+    console.log(event.target.files[0])
+    console.log(this.state.archivo)
+
+    await this.setState({archivo: event.target.files[0]})
+    console.log(this.state.archivo)
+    console.log(this.state.archivo.name)
+    console.log(gui.id)
+   
+    const arch = this.state.archivo;
+    let metadata = {
+  contentType: 'document/pdf'
+                      };
+
+  const storageRef = firebase.storage().ref(this.props.selectedNote.id);
+  let uploadTask = storageRef.child(gui.id+'/' + arch.name).put(arch, metadata);
 
 
   uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
@@ -476,20 +491,8 @@ await firebase.firestore().collection('notes').doc(this.props.selectedNote.id).c
     console.log('File available at', downloadURL);
   });
 });
-}
-
-
-onChangeHandler= async event=>{
-
-    console.log(event.target.files[0])
-    console.log(this.state.archivo)
-
-    await this.setState({archivo: event.target.files[0]})
-    console.log(this.state.archivo)
-    console.log(this.state.archivo.name)
 
 }
-
 
 
 }
